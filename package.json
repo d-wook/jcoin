@@ -1,0 +1,13 @@
+{
+  "name": "jcoin",
+  "version": "1.0.0",
+  "description": "Jcoin, the awesome coin made in Node.js. And for JH",
+  "main": "src/server.js",
+  "repository": "https://github.com/d-wook/jcoin.git",
+  "author": "d-wook <mrdongwook@gmail.com>",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "crypto-js": "^3.1.9-1"
+  }
+}
