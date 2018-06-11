@@ -1,4 +1,4 @@
-const CryptoJS = require('crypto-js');
+const CryptoJS = require("crypto-js");
 
 class Block {
     constructor(index, hash, previousHash, timestamp, data) {
@@ -27,9 +27,7 @@ const getTimestamp = () => new Date().getTime() / 1000;
 const getBlockChain = () => blockchain;
 
 const createHash = (index, previousHash, timestamp, data) => {
-    CryptoJS.SHA256(
-        index + previousHash + timestamp + JSON.stringify(data)
-    ).toString();
+    return CryptoJS.SHA256(index + previousHash + timestamp + JSON.stringify(data)).toString();
 }
 
 const createNewBlock = data => {
@@ -52,7 +50,6 @@ const createNewBlock = data => {
     );
 
     addBlockToChain(newBlock);
-
     return newBlock;
 };
 
@@ -82,7 +79,7 @@ const isNewStructureValid = (block) => {
         typeof block.hash === 'string' &&
         typeof block.previousHash === 'string' &&
         typeof block.timestamp === 'number' &&
-        typeof block.date === 'string'
+        typeof block.data === 'string'
     );
 }
 
