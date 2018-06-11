@@ -7,7 +7,7 @@ const getSockets = () => sockets;
 const startP2PServer = server => {
     const wsServer = new WebSockets.Server({ server });
     wsServer.on("connection", ws => {
-        console.log(`Hello ${ws}`);
+        initSocketConnection(wsServer);
     });
 
     console.log('JCoin P2P Server is running');
@@ -15,6 +15,12 @@ const startP2PServer = server => {
 
 const initSocketConnection = socket => {
     sockets.push(socket);
+    socket.on('message', data => {
+        console.log(data);
+    });
+    setTimeout(() => {
+        socket.send('Welcome');
+    }, 5000);
 }
 
 const connectToPeers = newPeer => {
@@ -22,7 +28,7 @@ const connectToPeers = newPeer => {
 
     ws.on('open', () => {
         initSocketConnection(ws);
-    })
+    });
 }
 
 module.exports = {
