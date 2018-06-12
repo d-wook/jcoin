@@ -76,6 +76,10 @@ const sendMessage = (ws, message) => {
     ws.send(JSON.stringify(message));
 }
 
+const responseLatest = () => {
+    
+}
+
 const handleSocketError = ws => {
     const closeSocketConnection = ws => {
         ws.close();
