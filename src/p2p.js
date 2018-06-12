@@ -16,14 +16,14 @@ const getLatest = () => {
         type: GET_LATEST,
         data: null
     };
-};
+}
 
 const getAll = () => {
     return {
         type: GET_ALL,
         data: null
     }
-};
+}
 
 const blockchainResponse = (data) => {
     return {
@@ -39,16 +39,41 @@ const startP2PServer = server => {
     });
 
     console.log('JCoin P2P Server is running');
-};
+}
 
-const initSocketConnection = socket => {
+const initSocketConnection = ws => {
     sockets.push(ws);
     handleSocketMessages(ws);
     handleSocketError(ws);
+    sendMessage(ws, getLatest());
+}
+
+const parseData = data => {
+    try {
+        return JSON.parse(data);
+    } catch(e) {
+        console.log(e);
+        return null;
+    }
 }
 
 const handleSocketMessages = ws => {
-    ws.on('message', data => {});
+    ws.on('message', data => {
+        const message = parseData(data);
+        if(message === null) {
+            return;
+        }
+        console.log(message);
+        switch(message.type){
+            case GET_LATEST:
+                sendMessage(ws, getLatestBlock());
+                break;
+        }
+    });
+}
+
+const sendMessage = (ws, message) => {
+    ws.send(JSON.stringify(message));
 }
 
 const handleSocketError = ws => {
@@ -75,4 +100,4 @@ const connectToPeers = newPeer => {
 module.exports = {
     startP2PServer,
     connectToPeers
-};
+}
