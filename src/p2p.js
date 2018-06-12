@@ -7,7 +7,7 @@ const getSockets = () => sockets;
 const startP2PServer = server => {
     const wsServer = new WebSockets.Server({ server });
     wsServer.on("connection", ws => {
-        initSocketConnection(wsServer);
+        initSocketConnection(ws);
     });
 
     console.log('JCoin P2P Server is running');
