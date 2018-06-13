@@ -1,6 +1,8 @@
 const WebSockets = require('ws');
 const Blockchain = require('./blockchain');
-const { getLatestBlock, isBlockStructureValid } = Blockchain;
+const { getLatestBlock, isBlockStructureValid, 
+        addBlockToChain, replaceChain, 
+        getBlockChain } = Blockchain;
 
 const sockets = [];
 const getSockets = () => sockets;
@@ -22,13 +24,6 @@ const getAll = () => {
     return {
         type: GET_ALL,
         data: null
-    }
-}
-
-const blockchainResponse = data => {
-    return {
-        type: BLOCKCHAIN_RESPONSE,
-        data
     }
 }
 
@@ -68,6 +63,9 @@ const handleSocketMessages = ws => {
             case GET_LATEST:
                 sendMessage(ws, responseLatest());
                 break;
+            case GET_ALL:
+                sendMessage(ws, responseAll());
+                break;
             case BLOCKCHAIN_RESPONSE:
                 const receivedBlocks = message.data;
                 if(receivedBlocks === null){
@@ -90,14 +88,48 @@ const handleBlockchainResponse = receivedBlocks => {
         console.log('The block structure of the received block is not valid');
         return;
     }
+
+    const latestBlock = getLatestBlock();
+    if(latestReceivedBlock.index > latestBlock.index) {
+        if(latestBlock.hash === latestReceivedBlock.previousHash){
+            if(addBlockToChain(latestReceivedBlock)){
+                broadcastNewBlock();
+            }
+        } else if(receivedBlocks.length === 1){
+            // to do get all the blocks, we are waaaay behind
+            sendMessageToAll(getAll());
+        } else {
+            // replace chain
+            replaceChain(receivedBlocks);
+        }
+    }
 }
 
 const sendMessage = (ws, message) => {
     ws.send(JSON.stringify(message));
 }
 
+const sendMessageToAll = message => {
+    sockets.forEach(ws => {
+        sendMessage(ws, message);
+    });
+}
+
 const responseLatest = () => {
     return blockchainResponse([getLatestBlock()]);
+}
+
+const responseAll = () => {
+    return blockchainResponse(getBlockChain());
+}
+
+const broadcastNewBlock = () => sendMessageToAll(responseLatest());
+
+const blockchainResponse = data => {
+    return {
+        type: BLOCKCHAIN_RESPONSE,
+        data
+    }
 }
 
 const handleSocketError = ws => {
@@ -123,5 +155,6 @@ const connectToPeers = newPeer => {
 
 module.exports = {
     startP2PServer,
-    connectToPeers
+    connectToPeers,
+    broadcastNewBlock
 }
